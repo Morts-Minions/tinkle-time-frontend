@@ -1,0 +1,124 @@
+---
+layout: base
+---
+
+<style>
+
+    .card {
+        background-color: #2f3136;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        width: 400px;
+        height: 460px;
+        text-align: left;
+        position: relative;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 15px;
+        font-size: 18px;
+    }
+
+    input[type="checkbox"] {
+        margin-right: 10px;
+        accent-color: #ff4655; /* Valorant's primary red color */
+    }
+
+    textarea {
+        width: calc(100% - 20px);
+        height: 100px;
+        padding: 10px;
+        margin-top: 15px;
+        background-color: #1c1e26;
+        color: #ffffff;
+        border: 1px solid #555;
+        border-radius: 5px;
+        resize: none;
+        font-size: 16px;
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    button {
+        background-color: #ff4655;
+        color: #ffffff;
+        border: none;
+        padding: 12px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 20px;
+        border-radius: 5px;
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #d83b47;
+    }
+</style>
+
+<div class="card">
+    <label>Bathroom Number:</label>
+    <input placeholder="Bathroom...">
+
+    <label>
+        <input type="checkbox" value="Missing Lock on Stall"> Missing Lock on Stall
+    </label>
+    <label>
+        <input type="checkbox" value="No Toilet Paper"> No Toilet Paper
+    </label>
+    <label>
+        <input type="checkbox" value="No Stall Doors"> No Stall Doors
+    </label>
+    <label>
+        <input type="checkbox" value="Bathroom Floors"> Bathroom Floors
+    </label>
+    
+    <textarea placeholder="Add additional details..."></textarea>
+
+    <button onclick="report_box()">Report Issue</button>
+</div>
+
+<script type="module">
+    import { javaURI, pythonURI, fetchOptions } from '{{ site.baseurl }}/assets/js/api/config.js';
+   // <!-- import dns from 'node:dns'; -->
+
+// Set the default DNS resolution to prefer IPv4 addresses
+    //dns.setDefaultResultOrder('ipv4first');
+    const url = `${javaURI}/api/issue`;
+    const updateURL = url + "/update/";
+
+    window.report_box=function report_box() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+
+        checkboxes.forEach(checkbox => {
+            const issueName = encodeURIComponent(checkbox.value); // Encode the issue name
+
+            const url = `${updateURL}${issueName}`;
+
+            const putOptions = {
+                ...fetchOptions,
+                method: 'PUT',
+            };
+
+            fetch(url, putOptions)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+        alert("Issues reported!");
+    }
+</script>
