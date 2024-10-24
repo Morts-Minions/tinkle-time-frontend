@@ -1,5 +1,5 @@
 ---
-layout: login
+layout: home
 title: Student Home 
 description: Home Page
 hide: true
