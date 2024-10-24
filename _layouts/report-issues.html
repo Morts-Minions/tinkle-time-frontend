@@ -65,7 +65,7 @@ layout: base
     <input placeholder="Bathroom...">
 
     <label>
-        <input type="checkbox" value="Missing Lock on Stall"> Missing Lock on Stall
+        <input type="checkbox" value="No Bathroom Lock"> No Bathroom Lock
     </label>
     <label>
         <input type="checkbox" value="No Toilet Paper"> No Toilet Paper
@@ -84,27 +84,37 @@ layout: base
 
 <script type="module">
     import { javaURI, pythonURI, fetchOptions } from '{{ site.baseurl }}/assets/js/api/config.js';
-   // <!-- import dns from 'node:dns'; -->
 
-// Set the default DNS resolution to prefer IPv4 addresses
-    //dns.setDefaultResultOrder('ipv4first');
-    const url = `http://localhost:8085/api/issue`;
-    const updateURL = url + "/update/";
+    const url = `http://localhost:8085/api/issue/update/`;
 
-    window.report_box=function report_box() {
+    window.report_box = function report_box() {
+        // Collect all selected checkboxes
         const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+        const selectedIssues = [];
 
         checkboxes.forEach(checkbox => {
-            const issueName = encodeURIComponent(checkbox.value); // Encode the issue name
+            selectedIssues.push(checkbox.value); // Collect the values of selected checkboxes
+        });
 
-            const url = `${updateURL}${issueName}`;
+        if (selectedIssues.length === 0) {
+            alert("Please select at least one issue.");
+            return;
+        }
+
+        selectedIssues.forEach(issue => {
+            const issueURL = `${url}${encodeURIComponent(issue)}`; // Create a unique URL for each issue
 
             const putOptions = {
                 ...fetchOptions,
                 method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ issue }), // Send the current issue in the body
             };
 
-            fetch(url, putOptions)
+            // Send individual PUT requests for each issue
+            fetch(issueURL, putOptions)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok: ' + response.statusText);
@@ -112,13 +122,13 @@ layout: base
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Success:', data);
+                    console.log('Success for issue:', issue, data);
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error for issue:', issue, error);
                 });
         });
 
         alert("Issues reported!");
-    }
+    };
 </script>
