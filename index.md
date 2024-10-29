@@ -1,8 +1,8 @@
 ---
-layout: base
+layout: home
 title: Student Home 
 description: Home Page
 hide: true
 ---
 
-My journey starts here.
+
